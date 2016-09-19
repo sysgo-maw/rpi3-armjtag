@@ -151,6 +151,8 @@ void enable_jtag()
 	ra=GET32(GPFSEL2);
 	ra&=~(7<<6); //gpio22
 	ra|=3<<6; //alt4 ARM_TRST
+	ra&=~(7<<9); // gpio23
+	ra|=3<<9; // alt4 ARM_RTCK
 	ra&=~(7<<12); //gpio24
 	ra|=3<<12; //alt4 ARM_TDO
 	ra&=~(7<<15); //gpio25
