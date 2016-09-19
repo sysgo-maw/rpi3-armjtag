@@ -33,3 +33,9 @@ _start:
 	bl app
 hang:
 	b hang
+
+.globl _start_aarch32
+_start_aarch32:
+	.word 0xeafffffe
+
+

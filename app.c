@@ -109,6 +109,50 @@ uint64_t read_spsel(void)
 	return v;
 }
 
+void write_elr_el2(uint64_t val)
+{
+	__asm__ __volatile__("msr elr_el2, %0" : : "r" (val) :);
+}
+
+uint32_t read_spsr_el2(void)
+{
+	uint32_t v;
+	__asm__ __volatile__("mrs %0, spsr_el2" : "=r" (v) : : );
+	return v;
+}
+
+void write_spsr_el2(uint32_t val)
+{
+	__asm__ __volatile__("msr spsr_el2, %0" : : "r" (val) : );
+}
+
+void eret(void)
+{
+	__asm__ __volatile__("eret");
+}
+
+void dsb(void)
+{
+	__asm__ __volatile__("dsb sy");
+}
+
+void hlt(void)
+{
+	__asm__ __volatile__("hlt #0");
+}
+
+extern unsigned char _start_aarch32[];
+
+void return_to_aarch32(uint64_t addr)
+{
+	uint32_t spsr_el2 = 0x13;
+	write_spsr_el2(spsr_el2);
+	write_elr_el2(addr);
+
+	dsb();
+	eret();
+}
+
 void PUT32(int addr, uint32_t val)
 {
 	((uint32_t *)addr)[0] = val;
@@ -168,13 +212,22 @@ void enable_jtag()
 	// ARM_TMS    12/27 CAM_GPIO  S5-11 OUT (27 ALT4)
 }
 
+void goto_aarch32(void)
+{
+	return_to_aarch32((uint64_t)_start_aarch32);
+}
 void app(uint32_t r0, uint32_t r1, uint32_t r2, uint32_t r3)
 {
-	dbg_puts("Waiting for JTAG\r\n");
 	enable_jtag();
+	dbg_puts("Waiting for JTAG\r\n");
+#if 1
 	while (1)
 	{
 		bcm283x_mu_serial_putc('.');
 		for(int i = 0; i < 1000000; i++) dummy();
 	}
+#else
+	goto_aarch32();
+#endif
+
 }
