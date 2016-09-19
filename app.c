@@ -39,7 +39,7 @@ struct bcm283x_mu_regs {
 #define __arch_getl(a)			(*(volatile unsigned int *)(a))
 #define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
 
-#define dmb()		__asm__ __volatile__ ("" : : : "memory")
+#define dmb()		__asm__ __volatile__ ("dmb sy" : : : "memory")
 #define __iormb()	dmb()
 #define __iowmb()	dmb()
 
